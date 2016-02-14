@@ -18,7 +18,8 @@ var chat = document.getElementById('chat'),
 	randomColorsChosen = {},
 	clientOptions = {
 			options: {
-					debug: true
+					debug: false,
+					reconnect: true
 				},
 			channels: channels
 		},
@@ -61,14 +62,14 @@ function formatEmotes(text, emotes) {
 			if(typeof mote == 'string') {
 				mote = mote.split('-');
 				mote = [parseInt(mote[0]), parseInt(mote[1])];
-				var length =  mote[1] - mote[0],
+				var length =  mote[1] - mote[0], 
 					empty = Array.apply(null, new Array(length + 1)).map(function() { return '' });
 				splitText = splitText.slice(0, mote[0]).concat(empty).concat(splitText.slice(mote[1] + 1, splitText.length));
 				splitText.splice(mote[0], 1, '<img class="emoticon" src="http://static-cdn.jtvnw.net/emoticons/v1/' + i + '/3.0">');
 			}
 		}
 	}
-	return htmlEntities(splitText).join('')
+	return htmlEntities(splitText).join('');
 }
 
 function badges(chan, user, isBot) {
@@ -180,7 +181,7 @@ function chatNotice(information, noticeFadeDelay, level, additionalClasses) {
 		ele.className += ' ' + additionalClasses;
 	}
 	
-	if(typeof level == 'number' && level != 0) {
+	if(typeof level == 'number' && level !== 0) {
 		ele.dataset.level = level;
 	}
 	
@@ -202,10 +203,10 @@ function timeout(channel, username) {
 	if(!recentTimeouts.hasOwnProperty(channel)) {
 		recentTimeouts[channel] = {};
 	}
-	if(!recentTimeouts[channel].hasOwnProperty(username) || recentTimeouts[channel][username] + 1000*10 < +new Date) {
-		recentTimeouts[channel][username] = +new Date;
-		chatNotice(capitalize(username) + ' was timed-out in ' + capitalize(dehash(channel)), 1000, 1, 'chat-delete-timeout')
-	};
+	if(!recentTimeouts[channel].hasOwnProperty(username) || recentTimeouts[channel][username] + 1000*10 < +new Date()) {
+		recentTimeouts[channel][username] = +new Date();
+		chatNotice(capitalize(username) + ' was timed-out in ' + capitalize(dehash(channel)), 1000, 1, 'chat-delete-timeout');
+	}
 	var toHide = document.querySelectorAll('.chat-line[data-channel="' + channel + '"][data-username="' + username + '"]:not(.chat-timedout) .chat-message');
 	for(var i in toHide) {
 		var h = toHide[i];
@@ -224,7 +225,7 @@ function clearChat(channel) {
 			h.className += ' chat-cleared';
 		}
 	}
-	chatNotice('Chat was cleared in ' + capitalize(dehash(channel)), 1000, 1, 'chat-delete-clear')
+	chatNotice('Chat was cleared in ' + capitalize(dehash(channel)), 1000, 1, 'chat-delete-clear');
 }
 function hosting(channel, target, viewers, unhost) {
 	if(!showHosting) return false;
@@ -244,7 +245,7 @@ client.addListener('message', handleChat);
 client.addListener('timeout', timeout);
 client.addListener('clearchat', clearChat);
 client.addListener('hosting', hosting);
-client.addListener('unhost', function(channel, viewers) { hosting(channel, null, viewers, true) });
+client.addListener('unhost', function(channel, viewers) { hosting(channel, null, viewers, true); });
 
 client.addListener('connecting', function (address, port) {
 		if(showConnectionNotices) chatNotice('Connecting', 1000, -4, 'chat-connection-good-connecting');
@@ -275,7 +276,7 @@ client.addListener('part', function (channel, username) {
 		var index = joinAccounced.indexOf(channel);
 		if(index > -1) {
 			if(showConnectionNotices) chatNotice('Parted ' + capitalize(dehash(channel)), 1000, -1, 'chat-room-part');
-			joinAccounced.splice(joinAccounced.indexOf(channel), 1)
+			joinAccounced.splice(joinAccounced.indexOf(channel), 1);
 		}
 	});
 
