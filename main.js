@@ -22,7 +22,7 @@ var chat = document.getElementById('chat'),
 			},
 			channels: ['rocketbeanstv']
 		},
-	client = new irc.client(clientOptions);
+	client = new tmi.client(clientOptions);
 
 function dehash(channel) {
 	return channel.replace(/^#/, '');
